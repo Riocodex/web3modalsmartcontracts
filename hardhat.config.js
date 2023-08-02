@@ -13,10 +13,7 @@ module.exports = {
       url: process.env.TESTNET_RPC_KEY,
       accounts: [process.env.PRIVATE_KEY]
     },
-    sepolia: {
-      url: process.env.INFURA_SEPOLIA_ENDPOINT ,
-      accounts: [process.env.PRIVATE_KEY]
-    }
+    
   },
   etherscan:{
     apiKey:process.env.POLYGONSCAN_API_KEY
