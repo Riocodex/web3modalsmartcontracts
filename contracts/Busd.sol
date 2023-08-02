@@ -1,57 +1,90 @@
 // SPDX-License-Identifier: MIT
-//contract deployed on sepolia network @0x90d61929B89441113fa06DC1B74Df2eAc877e9e9
+pragma solidity ^0.8.0;
 
-pragma solidity ^0.8.17;
+contract BUSDToken {
+    string public name = "BUSD"; // Token name
+    string public symbol = "BUSD"; // Token symbol
+    uint8 public decimals = 18; // Number of decimal places (same as ETH)
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+    uint256 private _totalSupply; // Total supply of tokens
+    mapping(address => uint256) private _balances; // Mapping of token balances
+    mapping(address => mapping(address => uint256)) private _allowances; // Mapping of allowed token transfers
 
-contract BusdToken is ERC20Capped, ERC20Burnable {
-    address payable public owner;
-    uint256 public blockReward;
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
-    constructor(uint256 cap, uint256 reward) ERC20("BUSD", "BUSD") ERC20Capped(cap * (10 ** decimals())) {
-        owner = payable(msg.sender);
-        _mint(owner, 70000000 * (10 ** decimals()));
-        blockReward = reward * (10 ** decimals());
+    constructor(uint256 totalSupply_) {
+        _totalSupply = totalSupply_ * (10**uint256(decimals));
+        _balances[msg.sender] = _totalSupply;
     }
 
-    function _mint(address account, uint256 amount) internal virtual override(ERC20Capped, ERC20) {
-        require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
-        super._mint(account, amount);
+    // Returns the total supply of tokens
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
     }
 
-    function _mintMinerReward() internal {
-        _mint(block.coinbase, blockReward);
+    // Returns the balance of tokens for a specific address
+    function balanceOf(address account) public view returns (uint256) {
+        return _balances[account];
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
-        if(from != address(0) && to != block.coinbase && block.coinbase != address(0)) {
-            _mintMinerReward();
-        }
-        super._beforeTokenTransfer(from, to, value);
-    }
-    
-
-    function setBlockReward(uint256 reward) public onlyOwner {
-        blockReward = reward * (10 ** decimals());
+    // Transfers tokens from the sender's account to another account
+    function transfer(address recipient, uint256 amount) public returns (bool) {
+        _transfer(msg.sender, recipient, amount);
+        return true;
     }
 
-    function sendTokens(address recipient, uint256 amount) public onlyOwner {
-        _transfer(_msgSender(), recipient, amount);
+    // Transfers tokens from one account to another if allowed by the sender
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public returns (bool) {
+        uint256 currentAllowance = _allowances[sender][msg.sender];
+        require(currentAllowance >= amount, "BUSD: Transfer amount exceeds allowance");
+        _approve(sender, msg.sender, currentAllowance - amount);
+        _transfer(sender, recipient, amount);
+        return true;
     }
 
-    function getBalance(address account) public view returns (uint256) {
-        return balanceOf(account);
+    // Allows spender to withdraw a certain amount of tokens from the owner's account
+    function approve(address spender, uint256 amount) public returns (bool) {
+        _approve(msg.sender, spender, amount);
+        return true;
     }
 
-    function destroy() public onlyOwner {
-        selfdestruct(owner);
+    // Returns the remaining number of tokens that spender is allowed to withdraw from owner
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
     }
 
-    modifier onlyOwner {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
+    // Internal function to perform token transfer
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal {
+        require(sender != address(0), "BUSD: Transfer from the zero address");
+        require(recipient != address(0), "BUSD: Transfer to the zero address");
+        require(amount > 0, "BUSD: Transfer amount must be greater than zero");
+        require(_balances[sender] >= amount, "BUSD: Not enough balance");
+
+        _balances[sender] -= amount;
+        _balances[recipient] += amount;
+
+        emit Transfer(sender, recipient, amount);
+    }
+
+    // Internal function to approve token transfer
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal {
+        require(owner != address(0), "BUSD: Approve from the zero address");
+        require(spender != address(0), "BUSD: Approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
     }
 }

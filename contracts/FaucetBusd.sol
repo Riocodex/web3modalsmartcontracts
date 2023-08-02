@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-// unmonetizedcontract deployed in sepolia network @0xfc6Ab2cb908cc35FBF567eE4D6D5Fd244c43153e
-// monetizedcontract deployed in sepolia network @0x6bF41505c9f996e542CA6Adba9123AE00d5704CD
+
 pragma solidity ^0.8.17;
 
 interface IERC20 {
