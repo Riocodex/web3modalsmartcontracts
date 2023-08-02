@@ -26,7 +26,7 @@ contract FaucetBusd {
         token = IERC20(tokenAddress);
         owner = payable(msg.sender);
     }
-
+    //function  to request BUSD
     function requestTokens(address recipient) public payable {
         require(
             msg.sender != address(0),
@@ -54,7 +54,8 @@ contract FaucetBusd {
     function setWithdrawalAmount(uint256 amount) public onlyOwner {
         withdrawalAmount = amount * (10**18);
     }
-
+    
+    //function to add locktime-to give users who want to withdraw BUSD some time out ie they wont withdraw 24/7 just like a normal faucet
     function setLockTime(uint256 amount) public onlyOwner {
         lockTime = amount * 1 minutes;
     }
@@ -63,7 +64,7 @@ contract FaucetBusd {
         emit Withdrawal(msg.sender, token.balanceOf(address(this)));
         token.transfer(msg.sender, token.balanceOf(address(this)));
     }
-
+    //function to withdraw eth users input in contract..this function isnt necessary only if we want to add a certain fee for users to take some busd
     function withdrawEth() public onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, "There is no ETH to withdraw");

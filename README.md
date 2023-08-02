@@ -31,6 +31,9 @@ with just the BUSD token contract with solidity, i can send and transfer tokens 
 ## Developing the Faucet Contract
 i created the faucet contract with solidity and enabled it to receive and send tokens and unlike the token contract it can be anyone, it musnt be me. 
 
+## TESTING
+i tested the contracts to make sure they work and ensuring its secure
+
 ## SUMMARY
 I had fun doing this, wasnt really challenging as i have deployed lots of token contracts and im very proficient in smart contract development. Hope you enjoyed and understood the documentation. Cant wait to work with you.
 
